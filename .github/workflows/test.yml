@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build test image
-        run: docker build -t gsharm22/docker-react -f Dockerfile.dev .
+        run: docker build -t gsharm22/docker-react -f frontend/Dockerfile.dev .
 
       - name: Run tests
         run: |
