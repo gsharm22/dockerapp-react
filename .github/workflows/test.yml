@@ -26,3 +26,22 @@ jobs:
             -e CI=true \
             gsharm22/docker-react \
             npm run test -- --coverage
+  deploy:
+    name: Deploy static website
+    needs: test
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Build and deploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: frontend
+          output_location: build
