@@ -1,15 +1,23 @@
-name: Test
+name: Test and publish Docker image
 
 on:
   push:
+    branches:
+      - master
   pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
+env:
+  APP_PATH: frontend
+  IMAGE_NAME: docker-react
+  ACR_SERVER: ${{ vars.ACR_NAME }}.azurecr.io
+
 jobs:
   test:
+    name: Run tests
     runs-on: ubuntu-latest
 
     steps:
@@ -17,15 +25,16 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build test image
-        working-directory: frontend
-        run: docker build -t gsharm22/docker-react -f Dockerfile.dev .
+        working-directory: ${{ env.APP_PATH }}
+        run: docker build -t docker-react-test -f Dockerfile.dev .
 
       - name: Run tests
         run: |
           docker run --rm \
             -e CI=true \
-            gsharm22/docker-react \
+            docker-react-test \
             npm run test -- --coverage
+
   publish:
     name: Publish image to ACR
     needs: test
@@ -46,7 +55,7 @@ jobs:
               --password-stdin
 
       - name: Build production image
-        working-directory: frontend
+        working-directory: ${{ env.APP_PATH }}
         run: |
           docker build \
             -f Dockerfile \
